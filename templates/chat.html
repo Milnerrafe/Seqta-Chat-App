@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chat Room: {{ room_name }}</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/htmx.org@1.8.4"></script>
+        <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.0.1/dist/socket.io.min.js"></script>
+    </head>
+    <body class="bg-gray-100">
+        <div class="container mx-auto p-8">
+            <h1 class="text-4xl font-semibold mb-4">
+                Chat Room: {{ room_name }}
+            </h1>
+
+            <div id="messages" class="space-y-4 mb-6">
+                <!-- Messages will be dynamically added here -->
+            </div>
+
+            <input
+                id="message"
+                class="w-full p-4 border border-gray-300 rounded"
+                type="text"
+                placeholder="Type a message"
+                onkeydown="if(event.key === 'Enter'){ sendMessage(); }"
+            />
+        </div>
+
+        <script>
+            window.onload = function () {
+                sayHi();
+            };
+
+            window.addEventListener("unload", function () {
+                sayBye();
+            });
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const name = urlParams.get("name");
+
+            var socket = io.connect(
+                "http://" + document.domain + ":" + location.port,
+            );
+            var room = "{{ room_name }}";
+            socket.emit("join", room);
+
+            socket.on("message", function (msg) {
+                let messageDiv = document.createElement("div");
+                messageDiv.textContent = msg;
+                document.getElementById("messages").appendChild(messageDiv);
+            });
+
+            function sendMessage() {
+                var ume = document.getElementById("message").value;
+                let messages = name.concat(" - ", ume);
+                if (ume) {
+                    socket.send(messages, room);
+                    document.getElementById("message").value = "";
+                }
+            }
+
+            function sayHi() {
+                var ume = "Has Joined The Chat";
+                let messages = name.concat(" - ", ume);
+                if (ume) {
+                    socket.send(messages, room);
+                    document.getElementById("message").value = "";
+                }
+            }
+
+            function sayBye() {
+                var ume = "Has Joined Left Chat";
+                let messages = name.concat(" - ", ume);
+                if (ume) {
+                    socket.send(messages, room);
+                    document.getElementById("message").value = "";
+                }
+            }
+        </script>
+    </body>
+</html>

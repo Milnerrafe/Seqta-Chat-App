@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chat Dashboard</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+    </head>
+    <body class="bg-gray-200">
+        <div class="container mx-auto p-8">
+            <h1 class="text-4xl font-semibold mb-4">Create a Chat Room</h1>
+            <form action="/create_room" method="POST">
+                <button
+                    type="submit"
+                    class="px-6 py-2 bg-blue-500 text-white rounded"
+                >
+                    Create New Room
+                </button>
+            </form>
+            <h2 class="mt-8 text-2xl">Active Rooms</h2>
+            <ul>
+                {% for room in rooms %}
+                <li>
+                    <a
+                        href="{{ url_for('chat_room', room_name=room) }}"
+                        class="text-blue-600 hover:underline"
+                        >{{ room }}</a
+                    >
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>
