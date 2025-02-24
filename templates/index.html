@@ -8,6 +8,55 @@
             href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
             rel="stylesheet"
         />
+
+        <style>
+            /* Comic book dot pattern background */
+            .bg-comic-dots {
+                background-image: radial-gradient(
+                    #00000022 1px,
+                    transparent 1px
+                );
+                background-size: 10px 10px;
+            }
+            /* Speech bubble tail */
+            .bubble-tail-left::after {
+                content: "";
+                position: absolute;
+                left: -10px;
+                top: 50%;
+                width: 0;
+                height: 0;
+                border: 10px solid transparent;
+                border-right-color: inherit;
+                border-left: 0;
+                margin-top: -10px;
+            }
+            .bubble-tail-right::after {
+                content: "";
+                position: absolute;
+                right: -10px;
+                top: 50%;
+                width: 0;
+                height: 0;
+                border: 10px solid transparent;
+                border-left-color: inherit;
+                border-right: 0;
+                margin-top: -10px;
+            }
+            /* Custom scrollbar for comic feel */
+            .comic-scrollbar::-webkit-scrollbar {
+                width: 12px;
+            }
+            .comic-scrollbar::-webkit-scrollbar-track {
+                background: #f5f3ff;
+                border-radius: 10px;
+            }
+            .comic-scrollbar::-webkit-scrollbar-thumb {
+                background: #c4b5fd;
+                border-radius: 10px;
+                border: 2px solid #f5f3ff;
+            }
+        </style>
     </head>
     <body class="bg-gray-200">
         <div class="container mx-auto p-8">
