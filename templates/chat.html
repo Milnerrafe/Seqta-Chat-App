@@ -13,9 +13,19 @@
     </head>
     <body class="bg-gray-100">
         <div class="container mx-auto p-8">
-            <h1 class="text-4xl font-semibold mb-4">
-                Chat Room: {{ room_name }}
-            </h1>
+            <div class="flex-row">
+                <h1 class="basis-256 text-4xl font-semibold mb-4">
+                    Chat Room: {{ room_name }} &emsp;
+
+                    <input
+                        id="name"
+                        class="basis-64 p-0.5 border border-gray-300 rounded"
+                        type="text"
+                        placeholder="Whats Your Name"
+                        onkeydown="if(event.key === 'Enter'){ setName(); }"
+                    />
+                </h1>
+            </div>
 
             <div id="messages" class="space-y-4 mb-6">
                 <!-- Messages will be dynamically added here -->
@@ -32,7 +42,10 @@
 
         <script>
             window.onload = function () {
-                sayHi();
+                if (name !== null) {
+                    sayHi();
+                    setSname();
+                }
             };
 
             window.addEventListener("unload", function () {
@@ -56,12 +69,33 @@
             });
 
             function sendMessage() {
-                var ume = document.getElementById("message").value;
-                let messages = name.concat(" - ", ume);
-                if (ume) {
-                    socket.send(messages, room);
-                    document.getElementById("message").value = "";
+                if (name !== null) {
+                    var ume = document.getElementById("message").value;
+                    let messages = name.concat(" - ", ume);
+                    if (ume) {
+                        socket.send(messages, room);
+                        document.getElementById("message").value = "";
+                    }
+                } else {
+                    var nonamemessage =
+                        document.getElementById("message").value;
+                    if (nonamemessage) {
+                        socket.send(nonamemessage, room);
+                        document.getElementById("message").value = "";
+                    }
                 }
+            }
+
+            function setName() {
+                var gname = document.getElementById("name").value;
+                let url = new URL(window.location.href);
+                url.searchParams.set("name", gname);
+                window.history.replaceState(null, "", url);
+                location.reload();
+            }
+
+            function setSname() {
+                document.getElementById("name").value = name;
             }
 
             function sayHi() {
