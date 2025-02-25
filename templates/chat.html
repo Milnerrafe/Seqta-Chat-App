@@ -58,47 +58,123 @@
                 border-radius: 10px;
                 border: 2px solid #f5f3ff;
             }
+
+            /* Full screen layout */
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .full-container {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                width: 100%;
+            }
+
+            .chat-messages-container {
+                flex: 1;
+                overflow-y: auto;
+            }
         </style>
     </head>
-    <body class="bg-yellow-50 bg-comic-dots min-h-screen">
-        <div class="container mx-auto p-4 max-w-4xl">
+    <body class="bg-yellow-50 bg-comic-dots">
+        <div
+            id="chatPopup"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50"
+        >
+            <div
+                class="bg-purple-600 text-white p-6 shadow-lg border-4 border-purple-800 w-80 relative"
+            >
+                <button
+                    id="closePopup"
+                    class="absolute top-2 right-2 text-white text-lg font-bold"
+                >
+                    &times;
+                </button>
+                <h2 class="text-lg font-bold mb-4">
+                    Join or Create a Chat Room
+                </h2>
+
+                <label for="chatRoomId" class="block mb-2"
+                    >Enter Chat Room ID:</label
+                >
+                <input
+                    type="text"
+                    id="chatRoomId"
+                    maxlength="6"
+                    class="w-full p-2 text-black text-center uppercase tracking-widest border-2 border-purple-400"
+                />
+
+                <button
+                    id="joinChat"
+                    class="bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 border-4 border-yellow-500 mt-4 w-full"
+                >
+                    Join Chat
+                </button>
+
+                <div class="border-t-2 border-white my-4"></div>
+
+                <form method="POST" action="/create_room">
+                    <button
+                        type="submit"
+                        id="newChat"
+                        class="bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 border-4 border-yellow-500 w-full"
+                    >
+                        New Chat
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="full-container">
             <!-- Header with comic book style -->
             <div
-                class="bg-purple-600 text-white p-4 rounded-t-lg shadow-lg border-4 border-purple-800"
+                class="bg-purple-600 text-white p-4 shadow-lg border-4 border-purple-800"
             >
                 <div class="flex flex-wrap items-center justify-between">
                     <h1
-                        class="text-3xl font-bold transform -rotate-1 inline-block bg-yellow-400 text-purple-900 px-4 py-1 rounded shadow"
+                        class="text-3xl font-bold transform -rotate-1 inline-block bg-yellow-400 text-purple-900 px-4 py-1 shadow"
                     >
                         {{ room_name }}
+
+                        <button
+                            onclick="toggleChatPopup();"
+                            class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
+                        >
+                            ⌘
+                        </button>
                     </h1>
 
                     <div class="flex items-center mt-2 md:mt-0">
-                        <div class="" id="loggedOut-main">
+                        <div class="block" id="loggedOut-main">
                             <button
                                 onclick="loginButton();"
-                                class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 rounded-lg border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
+                                class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
                             >
                                 LOGIN!
                             </button>
                         </div>
 
-                        <div class="hiden" id="loggedIn-main">
+                        <div class="hidden" id="loggedIn-main">
                             <button
                                 onclick="loginoutButton();"
-                                class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 rounded-lg border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
+                                class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
                             >
-                                LOGIN OUT!
+                                LOGOUT!
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Messages container with fixed height and scrolling -->
+            <!-- Messages container with flexible height and scrolling -->
             <div
                 id="chat-container"
-                class="bg-indigo-100 h-96 overflow-y-auto p-4 border-l-4 border-r-4 border-purple-800 comic-scrollbar"
+                class="bg-indigo-100 chat-messages-container overflow-y-auto p-4 border-l-4 border-r-4 border-purple-800 comic-scrollbar"
             >
                 <div id="messages" class="space-y-4 pb-2">
                     <!-- Messages will be dynamically added here -->
@@ -107,19 +183,19 @@
 
             <!-- Message input area -->
             <div
-                class="bg-purple-600 p-4 rounded-b-lg shadow-lg border-4 border-t-0 border-purple-800"
+                class="bg-purple-600 p-4 shadow-lg border-4 border-t-0 border-purple-800"
             >
                 <div class="flex">
                     <input
                         id="message"
-                        class="flex-grow p-4 border-4 border-purple-400 rounded-lg bg-white font-bold text-purple-800 placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        class="flex-grow p-4 border-4 border-purple-400 bg-white font-bold text-purple-800 placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                         type="text"
                         placeholder="Type your message here!"
                         onkeydown="if(event.key === 'Enter'){ sendMessage(); }"
                     />
                     <button
                         onclick="sendMessage();"
-                        class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-6 rounded-lg border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
+                        class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-6 border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
                     >
                         SEND!
                     </button>
@@ -128,6 +204,30 @@
         </div>
 
         <script>
+            // Initialize the name variable
+            let name = null;
+
+            function toggleChatPopup() {
+                document.getElementById("chatPopup").classList.toggle("hidden");
+            }
+
+            document
+                .getElementById("closePopup")
+                .addEventListener("click", toggleChatPopup);
+
+            document
+                .getElementById("joinChat")
+                .addEventListener("click", function () {
+                    const chatRoomId = document
+                        .getElementById("chatRoomId")
+                        .value.toUpperCase();
+                    if (chatRoomId.length === 6) {
+                        window.location.href = `/chat/${chatRoomId}`;
+                    } else {
+                        alert("Chat Room ID must be 6 characters long.");
+                    }
+                });
+
             function showLoggedInScreen() {
                 document
                     .getElementById("loggedOut-main")
@@ -137,21 +237,30 @@
                     .classList.remove("hidden");
             }
 
-            function deleteCookie(name) {
-                document.cookie = name + "=; Max-Age=-99999999;";
-            }
-
-            function loginoutButton() {
-                deleteCookie("session_cookie");
-                deleteCookie("person_name");
-
+            function showLoggedOutScreen() {
                 document
                     .getElementById("loggedOut-main")
                     .classList.remove("hidden");
                 document
                     .getElementById("loggedIn-main")
                     .classList.add("hidden");
-                location.reload();
+            }
+
+            function deleteCookie(name) {
+                document.cookie = name + "=; Max-Age=-99999999; path=/;";
+            }
+
+            function loginoutButton() {
+                deleteCookie("session_cookie");
+                deleteCookie("person_name");
+                name = null;
+                showLoggedOutScreen();
+
+                // Notify others that user has left
+                sayBye();
+
+                // No need to reload, just update the UI
+                // location.reload();
             }
 
             const baseUrl = window.location.origin;
@@ -213,14 +322,18 @@
             let colorIndex = 0;
 
             window.onload = function () {
-                name = getCookie("person_name");
+                let cookieName = getCookie("person_name");
 
-                if (name !== null) {
+                if (cookieName !== null) {
+                    name = cookieName;
+                    showLoggedInScreen();
                     setTimeout(() => {
                         sayHi();
                         pastChat();
-                        showLoggedInScreen();
                     }, 500);
+                } else {
+                    showLoggedOutScreen();
+                    pastChat();
                 }
 
                 // Scroll to the bottom of the chat
@@ -228,7 +341,9 @@
             };
 
             window.addEventListener("beforeunload", function () {
-                sayBye();
+                if (name !== null) {
+                    sayBye();
+                }
             });
 
             var socket = io.connect(
@@ -279,7 +394,7 @@
 
                 // Create message bubble with comic style
                 const bubble = document.createElement("div");
-                bubble.className = `relative max-w-3/4 p-4 rounded-lg border-4 ${color.bg} ${color.border} ${color.text} font-bold transform ${isCurrentUser ? "-rotate-1 bubble-tail-right" : "rotate-1 bubble-tail-left"}`;
+                bubble.className = `relative max-w-3/4 p-4 border-4 ${color.bg} ${color.border} ${color.text} font-bold transform ${isCurrentUser ? "-rotate-1 bubble-tail-right" : "rotate-1 bubble-tail-left"}`;
 
                 // For system messages (joins/leaves)
                 if (
@@ -287,7 +402,7 @@
                     messageContent.includes("Left The Chat")
                 ) {
                     bubble.className =
-                        "relative max-w-3/4 p-3 rounded-lg border-4 bg-gray-200 border-gray-400 text-gray-800 font-bold transform rotate-0";
+                        "relative max-w-3/4 p-3 border-4 bg-gray-200 border-gray-400 text-gray-800 font-bold transform rotate-0";
                 }
 
                 // Add username and message
@@ -306,31 +421,22 @@
             }
 
             function sendMessage() {
-                if (name !== null) {
-                    var ume = document.getElementById("message").value;
-                    let messages = name.concat(" - ", ume);
-                    if (ume) {
-                        socket.send(messages, room);
-                        document.getElementById("message").value = "";
-                    }
-                } else {
-                    var nonamemessage =
-                        document.getElementById("message").value;
-                    if (nonamemessage) {
-                        socket.send(nonamemessage, room);
-                        document.getElementById("message").value = "";
-                    }
-                }
-            }
+                const messageInput = document.getElementById("message");
+                const messageContent = messageInput.value.trim();
 
-            function setName() {
-                var gname = document.getElementById("name").value;
-                if (gname.trim() !== "") {
-                    let url = new URL(window.location.href);
-                    url.searchParams.set("name", gname);
-                    window.history.replaceState(null, "", url);
-                    location.reload();
+                if (!messageContent) {
+                    return; // Don't send empty messages
                 }
+
+                if (name !== null) {
+                    let messages = name + " - " + messageContent;
+                    socket.send(messages, room);
+                } else {
+                    socket.send(messageContent, room);
+                }
+
+                messageInput.value = "";
+                messageInput.focus();
             }
 
             function pastChat() {
@@ -340,6 +446,7 @@
                 if (storedMessages) {
                     document.getElementById("messages").innerHTML =
                         storedMessages;
+                    scrollToBottom();
                 }
             }
 
@@ -369,17 +476,15 @@
             }
 
             function sayHi() {
-                var ume = "Has Joined The Chat";
-                let messages = name.concat(" - ", ume);
-                if (ume) {
+                if (name) {
+                    let messages = name + " - Has Joined The Chat";
                     socket.send(messages, room);
                 }
             }
 
             function sayBye() {
-                var ume = "Has Left The Chat"; // Fixed the typo
-                let messages = name.concat(" - ", ume);
-                if (ume && name) {
+                if (name) {
+                    let messages = name + " - Has Left The Chat";
                     socket.send(messages, room);
                 }
             }
