@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, send_from_directory
 from flask_socketio import SocketIO, send, join_room, leave_room  # Import the necessary functions
 import random
 import string
@@ -14,9 +14,10 @@ chat_rooms = {}
 def index():
     return render_template('index.html', rooms=chat_rooms)
 
-@app.route('/json')
-def json():
-    return render_template('index.json')
+
+@app.route('/index.json')
+def get_json():
+    return send_from_directory('templates', 'index.json')
 
 @app.route('/create_room', methods=['POST'])
 def create_room():
@@ -47,4 +48,4 @@ def on_leave(room):
     leave_room(room)  # Correct usage of leave_room
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=80)
+    socketio.run(app, host='0.0.0.0', port=50)

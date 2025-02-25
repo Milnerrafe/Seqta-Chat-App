@@ -3,7 +3,7 @@
   "schoolName": "St George's Anglican Grammar School",
   "presetUrl": "https://passwordreset.microsoftonline.com",
   "schoolImg": "https://student.stgeorges.wa.edu.au/seqta/student/branding?file=962c8cf5-5be8-45cb-9bfa-be7259e57f15",
-  "backUrl": "chat.rafemedia.com",
+  "backUrl": "http://localhost:50",
   "css-id": "136ec557053e",
   "seqtaUrl": "https://student.stgeorges.wa.edu.au/"
 }

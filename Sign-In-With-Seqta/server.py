@@ -1,23 +1,27 @@
-from flask import Flask, request, redirect, render_template_string
+from sanic import Sanic, response
+from sanic.request import Request
+from sanic.response import html
 import requests
 import urllib3
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-app = Flask(__name__)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def scjson(url):
     response = requests.get(url)
+
     data = response.json()
-    return (
-        data.get("seqtaAuthUrl", ""),
-        data.get("schoolName", ""),
-        data.get("presetUrl", ""),
-        data.get("schoolImg", ""),
-        data.get("backUrl", ""),
-        data.get("css-id", ""),
-        data.get("seqtaUrl", "")
-    )
+
+    seqtaauthurl = data.get("seqtaAuthUrl", "")
+    schoolname = data.get("schoolName", "")
+    preseturl = data.get("presetUrl", "")
+    schoolimg = data.get("schoolImg", "")
+    backurl = data.get("backUrl", "")
+    cssid = data.get("css-id", "")
+    seqtaurl = data.get("seqtaUrl", "")
+
+    return seqtaauthurl, schoolname, preseturl, schoolimg, backurl, cssid, seqtaurl
+
 
 def getname(cookie):
     url = 'https://student.stgeorges.wa.edu.au/seqta/student/load/forums'
@@ -25,70 +29,85 @@ def getname(cookie):
         'Content-Type': 'application/json; charset=UTF-8',
         'Cookie': f"JSESSIONID={cookie}"
     }
-    body = {"mode": "list"}
+
+    body = {
+        "mode": "list"
+    }
+
     try:
         response = requests.post(url, json=body, headers=headers, verify=False)
-        response.raise_for_status()
+        response.raise_for_status()  # Raise an exception for non-2xx status codes
+
+        # Parse the JSON response
         data = response.json()
-        return data.get('payload', {}).get('me', 'Error')
+
+        # Check if 'payload' and 'me' exist, otherwise return 'Error'
+        name = data.get('payload', {}).get('me', 'Error')
+
     except (requests.RequestException, ValueError) as e:
+        # In case of an error (request or JSON parsing)
         print(e)
-        return 'Error'
+        name = 'Error'
+
+    return name
 
 def seqtaauth(seqtaurl, username, password):
+    url = seqtaurl
+
     headers = {
         "Accept": "text/javascript, text/html, application/xml, text/xml, */*",
         "Content-Type": "application/json; charset=utf-8"
     }
-    payload = {"username": username, "password": password, "mode": "normal", "query": None}
-    response = requests.post(seqtaurl, headers=headers, json=payload, verify=False)
+
+    payload = {
+        "username": username,
+        "password": password,
+        "mode": "normal",
+        "query": None
+    }
+
+    response = requests.post(url, headers=headers, json=payload, verify=False)
+
+    cookie_value = None
+
+    # Loop through the cookies in the response
     for cookie in response.cookies:
         if cookie.name == 'JSESSIONID':
-            return cookie.value
-    return None
+            cookie_value = cookie.value
+            break
+
+    return cookie_value
+
+
+
+
+
+
+
+
+app = Sanic("SeqtaAuthApp")
+
 
 @app.route("/login")
-def login():
+async def login(request: Request):
     scjsondata = request.args.get("scjson")
     seqtaauthurl, schoolname, preseturl, schoolimg, backurl, cssid, seqtaurl = scjson(scjsondata)
-    return render_template_string(LOGIN_TEMPLATE, schoolname=schoolname, preseturl=preseturl,
-                                  schoolimg=schoolimg, cssid=cssid, seqtaurl=seqtaurl, scjsondata=scjsondata)
-
-@app.route("/fail-login")
-def fail_login():
-    scjsondata = request.args.get("scjson")
-    seqtaauthurl, schoolname, preseturl, schoolimg, backurl, cssid, seqtaurl = scjson(scjsondata)
-    return render_template_string(LOGIN_TEMPLATE, schoolname=schoolname, preseturl=preseturl,
-                                  schoolimg=schoolimg, cssid=cssid, seqtaurl=seqtaurl, scjsondata=scjsondata,
-                                  failed=True)
-
-@app.route("/authenticate", methods=["POST"])
-def authenticate():
-    scjsondata = request.args.get("scjson")
-    seqtaauthurl, schoolname, preseturl, schoolimg, backurl, cssid, seqtaurl = scjson(scjsondata)
-    username = request.form.get('username')
-    password = request.form.get('password')
-    seqta_cookie = seqtaauth(seqtaauthurl, username, password)
-    personname = getname(seqta_cookie)
-    if personname == "Error":
-        return redirect(f"/fail-login?scjson={scjsondata}")
-    return redirect(f"{backurl}?cookie={seqta_cookie}&personname={personname}")
-
-LOGIN_TEMPLATE = '''
+    return html(f'''
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <link rel="stylesheet" href="{{ seqtaurl }}{{ cssid }}/seqtamodules-coneqt.css">
-    <link rel="stylesheet" href="{{ seqtaurl }}{{ cssid }}/coneqt.css">
-    <link rel="stylesheet" href="{{ seqtaurl }}{{ cssid }}/app.css">
-    <link rel="stylesheet" href="{{ seqtaurl }}{{ cssid }}/lib.css">
+    <!-- Link to the external CSS files -->
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/seqtamodules-coneqt.css">
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/coneqt.css">
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/app.css">
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/lib.css">
 </head>
 <body>
     <div class="login">
-        <div class="backdrop" style="background-image: url('{{ schoolimg }}');"></div>
+        <div class="backdrop" style="background-image: url(\'{schoolimg}\');"></div>
         <div class="branding">
             <a href="https://educationhorizons.com/solutions/seqta/" class="branding" target="_blank">
                 <img src="https://student.stgeorges.wa.edu.au/js/images/seqta-reverse.svg" alt="SEQTA" class="seqta">
@@ -97,30 +116,112 @@ LOGIN_TEMPLATE = '''
         </div>
         <div class="auth">
             <div class="loginBox">
-                <form action="/authenticate?scjson={{ scjsondata }}" method="post">
+                <form action="/authenticate?scjson={scjsondata}" method="post">
                     <label>
                         <span>User name</span>
-                        <input id="username" name="username" class="uiShortText username" type="text">
+                        <input id="username" name="username" class="uiShortText username" placeholder="" type="text" spellcheck="false" size="10" control-id="ControlID-1">
                     </label>
                     <label>
                         <span>Password</span>
-                        <input id="password" name="password" class="uiShortText password" type="password">
+                        <input id="password" class="uiShortText password" placeholder="" type="password" name="password" spellcheck="false" size="10" control-id="ControlID-2">
                     </label>
-                    <button type="submit" class="uiButton">Log in</button>
+                    <button type="submit" title="" class="uiButton" control-id="ControlID-3">Log in
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#000" d="M8.578 16.359l4.594-4.594-4.594-4.594 1.406-1.406 6 6-6 6z"></path>
+                        </svg>
+                    </button>
                 </form>
             </div>
-            {% if failed %}
-            <div class="invalidCredentials shown">The user name or password you entered doesn’t match our records.</div>
-            {% endif %}
-            <div class="siteName">{{ schoolname }}</div>
+            <div class="invalidCredentials"></div>
+            <div class="siteName">{schoolname}</div>
+            <div class="message"></div>
             <div class="reset">
-                <a target="_blank" href="{{ preseturl }}">Forgot your password?</a>
+                <a target="_blank" href="{preseturl}">Forgot your password?</a>
             </div>
+            <div class="alternatives"></div>
         </div>
     </div>
+
+
 </body>
 </html>
-'''
+    ''')
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route("/fail-login")
+async def faillogin(request: Request):
+    scjsondata = request.args.get("scjson")
+    seqtaauthurl, schoolname, preseturl, schoolimg, backurl, cssid, seqtaurl = scjson(scjsondata)
+    return html(f'''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <!-- Link to the external CSS files -->
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/seqtamodules-coneqt.css">
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/coneqt.css">
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/app.css">
+    <link rel="stylesheet" href="{seqtaurl}{cssid}/lib.css">
+</head>
+<body>
+    <div class="login">
+        <div class="backdrop" style="background-image: url(\'{schoolimg}\');"></div>
+        <div class="branding">
+            <a href="https://educationhorizons.com/solutions/seqta/" class="branding" target="_blank">
+                <img src="https://student.stgeorges.wa.edu.au/js/images/seqta-reverse.svg" alt="SEQTA" class="seqta">
+            </a>
+            <img class="productLogo" src="https://student.stgeorges.wa.edu.au/images/logo-learn.svg">
+        </div>
+        <div class="auth">
+            <div class="loginBox">
+                <form action="/authenticate?scjson={scjsondata}" method="post">
+                    <label>
+                        <span>User name</span>
+                        <input id="username" name="username" class="uiShortText username" placeholder="" type="text" spellcheck="false" size="10" control-id="ControlID-1">
+                    </label>
+                    <label>
+                        <span>Password</span>
+                        <input id="password" class="uiShortText password" placeholder="" type="password" name="password" spellcheck="false" size="10" control-id="ControlID-2">
+                    </label>
+                    <button type="submit" title="" class="uiButton" control-id="ControlID-3">Log in
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#000" d="M8.578 16.359l4.594-4.594-4.594-4.594 1.406-1.406 6 6-6 6z"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+            <div class="invalidCredentials shown">The user name or password you entered doesn’t match our records.</div>
+            <div class="siteName">{schoolname}</div>
+            <div class="message"></div>
+            <div class="reset">
+                <a target="_blank" href="{preseturl}">Forgot your password?</a>
+            </div>
+            <div class="alternatives"></div>
+        </div>
+    </div>
+
+
+</body>
+</html>
+    ''')
+
+# Handle login form submission, generate cookie, and redirect back
+@app.route("/authenticate", methods=["POST"])
+async def authenticate(request: Request):
+    scjsondata = request.args.get("scjson")
+    seqtaauthurl, schoolname, preseturl, schoolimg, backurl, cssid, seqtaurl = scjson(scjsondata)
+
+    username = request.form.get('username')
+    password = request.form.get('password')
+    seqta_cookie = seqtaauth(seqtaauthurl, username, password)
+    personname = getname(seqta_cookie)
+
+
+    if personname == "Error":
+             redirect_url = f"/fail-login?scjson={scjsondata}"
+    else:
+             redirect_url = f"{backurl}?cookie={seqta_cookie}&personname={personname}"
+
+
+    return response.redirect(redirect_url)

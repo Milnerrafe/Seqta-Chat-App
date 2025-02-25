@@ -60,7 +60,7 @@
             }
         </style>
     </head>
-    <body id="{bg-comic-dots}" class="bg-yellow-50 bg-comic-dots min-h-screen">
+    <body class="bg-yellow-50 bg-comic-dots min-h-screen">
         <div class="container mx-auto p-4 max-w-4xl">
             <!-- Header with comic book style -->
             <div
@@ -74,19 +74,23 @@
                     </h1>
 
                     <div class="flex items-center mt-2 md:mt-0">
-                        <input
-                            id="name"
-                            class="p-2 border-4 border-purple-400 rounded bg-white font-bold text-purple-800 placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 transform rotate-1"
-                            type="text"
-                            placeholder="YOUR NAME HERE!"
-                            onkeydown="if(event.key === 'Enter'){ setName(); }"
-                        />
-                        <button
-                            onclick="setName();"
-                            class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 rounded-lg border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
-                        >
-                            SET!
-                        </button>
+                        <div class="" id="loggedOut-main">
+                            <button
+                                onclick="loginButton();"
+                                class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 rounded-lg border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
+                            >
+                                LOGIN!
+                            </button>
+                        </div>
+
+                        <div class="hiden" id="loggedIn-main">
+                            <button
+                                onclick="loginoutButton();"
+                                class="ml-2 bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-bold py-2 px-4 rounded-lg border-4 border-yellow-500 transform rotate-1 transition-transform hover:rotate-0"
+                            >
+                                LOGIN OUT!
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -124,6 +128,38 @@
         </div>
 
         <script>
+            function showLoggedInScreen() {
+                document
+                    .getElementById("loggedOut-main")
+                    .classList.add("hidden");
+                document
+                    .getElementById("loggedIn-main")
+                    .classList.remove("hidden");
+            }
+
+            function deleteCookie(name) {
+                document.cookie = name + "=; Max-Age=-99999999;";
+            }
+
+            function loginoutButton() {
+                deleteCookie("session_cookie");
+                deleteCookie("person_name");
+
+                document
+                    .getElementById("loggedOut-main")
+                    .classList.remove("hidden");
+                document
+                    .getElementById("loggedIn-main")
+                    .classList.add("hidden");
+                location.reload();
+            }
+
+            const baseUrl = window.location.origin;
+            const fullUrl = `${baseUrl}/index.json`;
+
+            function loginButton() {
+                window.location.href = `http://localhost:8000/login?scjson=${fullUrl}`;
+            }
             // Available pastel colors for message bubbles
             const bubbleColors = [
                 {
@@ -163,20 +199,27 @@
                 },
             ];
 
+            function getCookie(name) {
+                let cookieArr = document.cookie.split(";");
+                for (let cookie of cookieArr) {
+                    let [key, value] = cookie.trim().split("=");
+                    if (key === name) return value;
+                }
+                return null;
+            }
+
             // Username to color mapping to keep consistent colors
             const userColors = {};
             let colorIndex = 0;
 
             window.onload = function () {
-                const queryString = window.location.search;
-                const urlParams = new URLSearchParams(queryString);
-                const name = urlParams.get("name");
+                name = getCookie("person_name");
 
                 if (name !== null) {
-                    document.getElementById("name").value = name;
                     setTimeout(() => {
                         sayHi();
                         pastChat();
+                        showLoggedInScreen();
                     }, 500);
                 }
 
@@ -187,10 +230,6 @@
             window.addEventListener("beforeunload", function () {
                 sayBye();
             });
-
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            const name = urlParams.get("name");
 
             var socket = io.connect(
                 "http://" + document.domain + ":" + location.port,

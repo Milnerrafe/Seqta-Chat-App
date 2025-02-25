@@ -57,33 +57,12 @@
                 border: 2px solid #f5f3ff;
             }
         </style>
-        <script>
-            const cookie = getUrlParameter("cookie");
-            const personname = getUrlParameter("personname");
-            if (cookie) {
-                document.cookie = `session_cookie=${cookie}; path=/`;
-                document.cookie = `person_name=${personname}; path=/`;
-                window.location.href = "/";
-            } else if (getCookie("session_cookie")) {
-                // Show the logged-in screen if session_cookie exists
-                showLoggedInScreen();
-            }
 
-            function showLoggedInScreen() {
-                document
-                    .getElementById("loggedOut-main")
-                    .classList.add("hidden");
-                document
-                    .getElementById("loggedIn-main")
-                    .classList.remove("hidden");
-                personcookieValue = getCookie("person_name");
-                document.getElementById("loggedInHeader-text").innerText =
-                    "Hi, " + personcookieValue;
-            }
-        </script>
     </head>
     <body class="bg-yellow-50 bg-comic-dots min-h-screen">
         <div class="container mx-auto p-8">
+
+            <div class"flex-row">
             <h1 class="text-4xl font-semibold mb-4">Create a Chat Room</h1>
             <form action="/create_room" method="POST">
                 <button
@@ -94,17 +73,22 @@
                 </button>
             </form>
 
-            <form
-                action="https://login.rafemedia.com/login?scjson=https://login.rafemedia.com/index.json"
-                class""
-                id="loggedOut-main"
-            >
-                <input type="submit" px-6 py-2 bg-blue-500 text-white rounded value="Login" />
-            </form>
+            <div id="loggedOut-main" class"z-100">
 
-        <div id="loggedOut-main">
-            <h2 class="text-2xl font-semibold mb-4" id="loggedInHeader-text"></h2>
-        </div>
+            <button class="px-6 py-2 bg-blue-500 text-white rounded" id="sign-in-btn" onclick="loginButton()">Login</button>
+
+            </div>
+
+            <div id="loggedIn-main" class="hidden">
+                <h2 class="text-2xl font-semibold mb-4" id="loggedInHeader-text"></h2>
+            </div>
+
+            </div>
+
+
+
+
+
 
             <h2 class="mt-8 text-2xl">Active Rooms</h2>
             <ul>
@@ -120,4 +104,59 @@
             </ul>
         </div>
     </body>
+
+    <script>
+
+
+    function getCookie(name) {
+                let cookieArr = document.cookie.split(";");
+                for (let cookie of cookieArr) {
+                    let [key, value] = cookie.trim().split("=");
+                    if (key === name) return value;
+                }
+                return null;
+            }
+
+
+          function getUrlParameter(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+        const cookie = getUrlParameter("cookie");
+        const personname = getUrlParameter("personname");
+        if (cookie) {
+            document.cookie = `session_cookie=${cookie}; path=/`;
+            document.cookie = `person_name=${personname}; path=/`;
+            window.location.href = "/";
+        } else if (getCookie("session_cookie")) {
+            // Show the logged-in screen if session_cookie exists
+            showLoggedInScreen();
+        }
+
+        function showLoggedInScreen() {
+            document
+                .getElementById("loggedOut-main")
+                .classList.add("hidden");
+            document
+                .getElementById("loggedIn-main")
+                .classList.remove("hidden");
+            personcookieValue = getCookie("person_name");
+            document.getElementById("loggedInHeader-text").innerText =
+                "Hi, " + personcookieValue;
+        }
+
+
+        const baseUrl = window.location.origin;
+        const fullUrl = `${baseUrl}/index.json`;
+
+
+            function loginButton() {
+                 window.location.href = `http://localhost:8000/login?scjson=${fullUrl}`;
+
+                }
+
+
+    </script>
+
 </html>
