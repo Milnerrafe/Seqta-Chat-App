@@ -1,10 +1,13 @@
 from flask import Flask, render_template, redirect, url_for, request, send_from_directory
 from flask_socketio import SocketIO, send, join_room, leave_room  # Import the necessary functions
+import subprocess
 import random
 import string
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+
 
 # In-memory store for rooms
 chat_rooms = {}
@@ -13,7 +16,6 @@ chat_rooms = {}
 @app.route('/')
 def index():
     return render_template('index.html', rooms=chat_rooms)
-
 
 @app.route('/index.json')
 def get_json():
@@ -48,4 +50,5 @@ def on_leave(room):
     leave_room(room)  # Correct usage of leave_room
 
 if __name__ == '__main__':
+    subprocess.Popen(["python3", "Sign-In-With-Seqta/server.py"])
     socketio.run(app, host='0.0.0.0', port=50)
