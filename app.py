@@ -21,6 +21,10 @@ def index():
 def get_json():
     return send_from_directory('templates', 'index.json')
 
+@app.route('/favicon.svg')
+def get_favicon():
+    return send_from_directory('templates', 'favicon.svg')
+
 @app.route('/create_room', methods=['POST'])
 def create_room():
     room_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
