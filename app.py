@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, send_from_directory
+from flask import Flask, render_template, redirect, url_for, request, send_from_directory, file
 from flask_socketio import SocketIO, send, join_room, leave_room  # Import the necessary functions
 import subprocess
 import random
@@ -23,7 +23,7 @@ def get_json():
 
 @app.route('/favicon.svg')
 def get_favicon():
-    return send_from_directory('templates', 'favicon.svg')
+    return file('templates/favicon.svg').read()
 
 @app.route('/create_room', methods=['POST'])
 def create_room():
