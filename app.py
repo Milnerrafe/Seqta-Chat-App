@@ -14,6 +14,10 @@ chat_rooms = {}
 def index():
     return render_template('index.html', rooms=chat_rooms)
 
+@app.route('/json')
+def json():
+    return render_template('index.json')
+
 @app.route('/create_room', methods=['POST'])
 def create_room():
     room_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))

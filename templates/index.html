@@ -9,12 +9,6 @@
             rel="stylesheet"
         />
 
-        <script>
-            if (window.location.protocol === "https:") {
-                window.location.protocol = "http:";
-            }
-        </script>
-
         <style>
             /* Comic book dot pattern background */
             .bg-comic-dots {
@@ -63,8 +57,32 @@
                 border: 2px solid #f5f3ff;
             }
         </style>
+        <script>
+            const cookie = getUrlParameter("cookie");
+            const personname = getUrlParameter("personname");
+            if (cookie) {
+                document.cookie = `session_cookie=${cookie}; path=/`;
+                document.cookie = `person_name=${personname}; path=/`;
+                window.location.href = "/";
+            } else if (getCookie("session_cookie")) {
+                // Show the logged-in screen if session_cookie exists
+                showLoggedInScreen();
+            }
+
+            function showLoggedInScreen() {
+                document
+                    .getElementById("loggedOut-main")
+                    .classList.add("hidden");
+                document
+                    .getElementById("loggedIn-main")
+                    .classList.remove("hidden");
+                personcookieValue = getCookie("person_name");
+                document.getElementById("loggedInHeader-text").innerText =
+                    "Hi, " + personcookieValue;
+            }
+        </script>
     </head>
-    <body class="bg-gray-200">
+    <body class="bg-yellow-50 bg-comic-dots min-h-screen">
         <div class="container mx-auto p-8">
             <h1 class="text-4xl font-semibold mb-4">Create a Chat Room</h1>
             <form action="/create_room" method="POST">
@@ -75,6 +93,19 @@
                     Create New Room
                 </button>
             </form>
+
+            <form
+                action="https://login.rafemedia.com/login?scjson=https://login.rafemedia.com/index.json"
+                class""
+                id="loggedOut-main"
+            >
+                <input type="submit" px-6 py-2 bg-blue-500 text-white rounded value="Login" />
+            </form>
+
+        <div id="loggedOut-main">
+            <h2 class="text-2xl font-semibold mb-4" id="loggedInHeader-text"></h2>
+        </div>
+
             <h2 class="mt-8 text-2xl">Active Rooms</h2>
             <ul>
                 {% for room in rooms %}
