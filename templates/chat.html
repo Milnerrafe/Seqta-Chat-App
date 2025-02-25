@@ -344,7 +344,7 @@
             });
 
             var socket = io.connect(
-                "http://" + document.domain + ":" + location.port,
+                "https://" + document.domain + ":" + location.port,
             );
             var room = "{{ room_name }}";
             socket.emit("join", room);
