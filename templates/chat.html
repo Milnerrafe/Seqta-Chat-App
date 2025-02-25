@@ -490,6 +490,43 @@
                 const chatContainer = document.getElementById("chat-container");
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
+
+            function getCookie(name) {
+                let cookieArr = document.cookie.split(";");
+                for (let cookie of cookieArr) {
+                    let [key, value] = cookie.trim().split("=");
+                    if (key === name) return value;
+                }
+                return null;
+            }
+
+            function getUrlParameter(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            const cookie = getUrlParameter("cookie");
+            const personname = getUrlParameter("personname");
+            if (cookie) {
+                document.cookie = `session_cookie=${cookie}; path=/`;
+                document.cookie = `person_name=${personname}; path=/`;
+                window.location.href = "/";
+            } else if (getCookie("session_cookie")) {
+                // Show the logged-in screen if session_cookie exists
+                showLoggedInScreen();
+            }
+
+            function showLoggedInScreen() {
+                document
+                    .getElementById("loggedOut-main")
+                    .classList.add("hidden");
+                document
+                    .getElementById("loggedIn-main")
+                    .classList.remove("hidden");
+                personcookieValue = getCookie("person_name");
+                document.getElementById("loggedInHeader-text").innerText =
+                    "Hi, " + personcookieValue;
+            }
         </script>
     </body>
 </html>

@@ -15,7 +15,7 @@ chat_rooms = {}
 # Dashboard - Create a new chat room
 @app.route('/')
 def index():
-    return render_template('index.html', rooms=chat_rooms)
+    return render_template('index.html', room_name="??????")
 
 @app.route('/index.json')
 def get_json():
