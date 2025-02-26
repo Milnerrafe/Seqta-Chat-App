@@ -95,6 +95,16 @@
             <div
                 class="bg-purple-600 text-white p-6 shadow-lg border-4 border-purple-800 w-80 relative rounded-2xl"
             >
+                <form method="POST" action="/create_room">
+                    <button
+                        type="submit"
+                        id="closePopup"
+                        class="absolute top-2 right-2 text-white text-lg font-bold rounded-full"
+                    >
+                        &times;
+                    </button>
+                </form>
+
                 <h2 class="text-lg font-bold mb-4">
                     Join or Create a Chat Room
                 </h2>
@@ -207,10 +217,6 @@
             function toggleChatPopup() {
                 document.getElementById("chatPopup").classList.toggle("hidden");
             }
-
-            document
-                .getElementById("closePopup")
-                .addEventListener("click", toggleChatPopup);
 
             document
                 .getElementById("joinChat")
