@@ -402,7 +402,8 @@
                 // For system messages (joins/leaves)
                 if (
                     messageContent.includes("Joined The Chat") ||
-                    messageContent.includes("Left The Chat")
+                    messageContent.includes("Left The Chat") ||
+                    messageContent.includes("Message too long!")
                 ) {
                     bubble.className =
                         "relative max-w-3/4 p-3 border-4 bg-gray-200 border-gray-400 text-gray-800 font-bold transform rotate-0";
@@ -423,15 +424,35 @@
                 messagesDiv.appendChild(messageDiv);
             }
 
+            let canSendMessage = true; // Throttle flag
+
             function sendMessage() {
+                if (!canSendMessage) return; // Prevent sending if throttled
+
                 const messageInput = document.getElementById("message");
-                const messageContent = messageInput.value.trim();
+                let messageContent = messageInput.value.trim();
 
                 if (!messageContent) {
                     return; // Don't send empty messages
                 }
 
-                if (name !== null) {
+                const maxLength = name ? 400 : 200;
+                if (messageContent.length > maxLength) {
+                    if (name) {
+                        let userperson = name;
+                    } else {
+                        let userperson = "Anonymous";
+                    }
+
+                    socket.send(
+                        `ADMIN - Message too long! ${userperson} Max allowed: ${maxLength} characters.`,
+                        room,
+                    );
+                    return;
+                }
+
+                // Send message with name if logged in, otherwise send normally
+                if (name) {
                     let messages = name + " - " + messageContent;
                     socket.send(messages, room);
                 } else {
@@ -440,6 +461,12 @@
 
                 messageInput.value = "";
                 messageInput.focus();
+
+                // Throttle sending (1 message per 3 seconds)
+                canSendMessage = false;
+                setTimeout(() => {
+                    canSendMessage = true;
+                }, 2000); // 3 seconds cooldown
             }
 
             function pastChat() {
