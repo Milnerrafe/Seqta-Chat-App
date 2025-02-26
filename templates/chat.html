@@ -437,17 +437,15 @@
                 }
 
                 const maxLength = name ? 400 : 200;
+
                 if (messageContent.length > maxLength) {
-                    if (name) {
-                        let userperson = name;
-                    } else {
-                        let userperson = "Anonymous";
-                    }
+                    let userperson = name || "Anonymous"; // Assign directly using logical OR
 
                     socket.send(
                         `ADMIN - Message too long! ${userperson} Max allowed: ${maxLength} characters.`,
                         room,
                     );
+
                     return;
                 }
 
