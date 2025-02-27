@@ -397,7 +397,7 @@
 
                 // Create message bubble with comic style
                 const bubble = document.createElement("div");
-                bubble.className = `relative max-w-3/4 p-4 border-4 ${color.bg} ${color.border} ${color.text} font-bold transform ${isCurrentUser ? "-rotate-1 bubble-tail-right" : "rotate-1 bubble-tail-left"}`;
+                bubble.className = `relative max-w-3/4 p-4 border-4 ${color.bg} ${color.border} ${color.text} font-bold transform ${isCurrentUser ? "bubble-tail-right" : "bubble-tail-left"}`;
 
                 // For system messages (joins/leaves)
                 if (
@@ -555,8 +555,6 @@
                     .getElementById("loggedIn-main")
                     .classList.remove("hidden");
                 personcookieValue = getCookie("person_name");
-                document.getElementById("loggedInHeader-text").innerText =
-                    "Hi, " + personcookieValue;
             }
         </script>
     </body>
