@@ -1,0 +1,7 @@
+{
+  "python.interpreter" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/bin\/python3",
+  "python.pythonPath" : "\/Library\/Frameworks\/Python.framework\/Versions\/3.12\/bin\/python3",
+  "workspace.art_style" : 1,
+  "workspace.color" : 11,
+  "workspace.name" : "Seqta-Chat-App"
+}
