@@ -25,6 +25,10 @@ def get_json():
 def get_js():
     return send_from_directory('templates', 'index.js')
 
+@app.route('/logo.svg')
+def get_logo():
+    return send_from_directory('templates', 'logo.svg')
+
 @app.route('/create_room', methods=['POST'])
 def create_room():
     room_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))

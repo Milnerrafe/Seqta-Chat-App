@@ -10,10 +10,10 @@ function toggleChatPopup() {
 if (roomName == "??????") {
   document.getElementById("x-button").innerHTML =
     '<form method="POST" action="/create_room"><button type="submit" id="closePopup" class="absolute top-2 right-2 text-white text-lg font-bold rounded-full">&times;</button></form>';
-  toggleChatPopup();
 } else {
   document.getElementById("x-button").innerHTML =
     '<button id="closePopup" class="absolute top-2 right-2 text-white text-lg font-bold rounded-full">&times;</button>';
+  toggleChatPopup();
 }
 
 document
