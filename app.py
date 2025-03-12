@@ -21,6 +21,10 @@ def index():
 def get_json():
     return send_from_directory('templates', 'index.json')
 
+@app.route('/index.js')
+def get_js():
+    return send_from_directory('templates', 'index.js')
+
 @app.route('/create_room', methods=['POST'])
 def create_room():
     room_name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -32,7 +36,7 @@ def create_room():
 def chat_room(room_name):
     if room_name not in chat_rooms:
         return redirect(url_for('index'))
-    return render_template('chat.html', room_name=room_name)
+    return render_template('index.html', room_name=room_name)
 
 # Real-time chat using SocketIO
 @socketio.on('message')
