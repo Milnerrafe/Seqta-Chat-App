@@ -13,7 +13,6 @@ if (roomName == "??????") {
 } else {
   document.getElementById("x-button").innerHTML =
     '<button id="closePopup" class="absolute top-2 right-2 text-white text-lg font-bold rounded-full">&times;</button>';
-  toggleChatPopup();
 }
 
 document

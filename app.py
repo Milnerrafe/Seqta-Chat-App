@@ -15,7 +15,7 @@ chat_rooms = {}
 # Dashboard - Create a new chat room
 @app.route('/')
 def index():
-    return render_template('index.html', room_name="??????")
+    return render_template('index.html', room_name="??????", is_hidden="")
 
 @app.route('/index.json')
 def get_json():
@@ -40,7 +40,7 @@ def create_room():
 def chat_room(room_name):
     if room_name not in chat_rooms:
         return redirect(url_for('index'))
-    return render_template('index.html', room_name=room_name)
+    return render_template('index.html', room_name=room_name, is_hidden="hidden")
 
 # Real-time chat using SocketIO
 @socketio.on('message')
