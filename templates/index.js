@@ -64,12 +64,41 @@ function loginButton() {
 }
 // Available pastel colors for message bubbles
 const bubbleColors = [
-  { bg: "bg-blue-500", border: "border-blue-600", text: "text-white" },
-  { bg: "bg-gray-200", border: "border-gray-300", text: "text-black" },
-  { bg: "bg-green-500", border: "border-green-600", text: "text-white" },
-  { bg: "bg-yellow-400", border: "border-yellow-500", text: "text-black" },
-  { bg: "bg-purple-500", border: "border-purple-600", text: "text-white" },
-  { bg: "bg-red-500", border: "border-red-600", text: "text-white" },
+  {
+    bg: "bg-pink-200",
+    border: "border-pink-400",
+    text: "text-pink-800",
+  },
+  {
+    bg: "bg-green-200",
+    border: "border-green-400",
+    text: "text-green-800",
+  },
+  {
+    bg: "bg-blue-200",
+    border: "border-blue-400",
+    text: "text-blue-800",
+  },
+  {
+    bg: "bg-yellow-200",
+    border: "border-yellow-400",
+    text: "text-yellow-800",
+  },
+  {
+    bg: "bg-indigo-200",
+    border: "border-indigo-400",
+    text: "text-indigo-800",
+  },
+  {
+    bg: "bg-red-200",
+    border: "border-red-400",
+    text: "text-red-800",
+  },
+  {
+    bg: "bg-purple-200",
+    border: "border-purple-400",
+    text: "text-purple-800",
+  },
 ];
 
 function getCookie(name) {
@@ -130,7 +159,6 @@ function getUserColor(username) {
 
 function addMessage(msg) {
   const messagesDiv = document.getElementById("messages");
-
   // Parse message to get username and message content
   let username = "Anonymous";
   let messageContent = msg;
@@ -139,34 +167,31 @@ function addMessage(msg) {
     username = msg.substring(0, separatorIndex);
     messageContent = msg.substring(separatorIndex + 3);
   }
-
   // Get color for this user
   const color = getUserColor(username);
+  // Determine if message is from current user
   const isCurrentUser = name !== null && username === name;
-
   // Create message element
   const messageDiv = document.createElement("div");
   messageDiv.className = isCurrentUser
     ? "flex justify-end"
     : "flex justify-start";
-
-  // Create message bubble with new Tailwind styles
+  // Create message bubble with comic style
   const bubble = document.createElement("div");
-  bubble.className = `relative max-w-[75%] px-4 py-2 rounded-2xl shadow-md ${color.bg} ${color.border} ${color.text} ${isCurrentUser ? "bubble-tail-right self-end text-right" : "bubble-tail-left self-start text-left"}`;
-
-  // System messages (joins/leaves)
+  bubble.className = `relative max-w-3/4 p-4 border-4 ${color.bg} ${color.border} ${color.text} font-bold transform ${isCurrentUser ? "bubble-tail-right" : "bubble-tail-left"}`;
+  // For system messages (joins/leaves)
   if (
     messageContent.includes("Joined The Chat") ||
     messageContent.includes("Left The Chat") ||
     messageContent.includes("Message too long!")
   ) {
     bubble.className =
-      "relative max-w-[75%] px-3 py-2 rounded-lg bg-gray-200 border border-gray-300 text-gray-800 font-semibold shadow";
+      "relative max-w-3/4 p-3 border-4 bg-gray-200 border-gray-400 text-gray-800 font-bold transform rotate-0";
   }
 
   // Add username
   const usernameSpan = document.createElement("span");
-  usernameSpan.className = "block font-bold uppercase text-xs text-gray-500";
+  usernameSpan.className = "block font-extrabold uppercase text-xs";
   usernameSpan.textContent = username;
   bubble.appendChild(usernameSpan);
 
@@ -182,10 +207,10 @@ function addMessage(msg) {
     const imageUrl = imgMatch[1];
     processedContent = processedContent.replace(imgMatch[0], "");
 
-    // Create image element
+    // Create image element to add later
     const imgElement = document.createElement("img");
     imgElement.src = imageUrl;
-    imgElement.className = "max-w-full mt-2 rounded-xl shadow";
+    imgElement.className = "max-w-full mt-2 rounded";
     imgElement.alt = "Embedded image";
     imgElements.push(imgElement);
   }
@@ -199,26 +224,30 @@ function addMessage(msg) {
     const iframeUrl = iframeMatch[1];
     processedContent = processedContent.replace(iframeMatch[0], "");
 
-    // Create iframe element
+    // Create iframe element to add later
     const iframeElement = document.createElement("iframe");
     iframeElement.src = iframeUrl;
-    iframeElement.className =
-      "w-full mt-2 rounded-lg border border-gray-300 shadow";
+    iframeElement.className = "w-full mt-2 border-0 rounded";
     iframeElement.style.height = "300px";
     iframeElement.setAttribute("allowfullscreen", "true");
     iframeElement.setAttribute("loading", "lazy");
     iframeElements.push(iframeElement);
   }
 
-  // Add the text content
+  // Add the text content (without the embed commands)
   const textSpan = document.createElement("span");
-  textSpan.className = "text-lg";
   textSpan.textContent = processedContent.trim();
   bubble.appendChild(textSpan);
 
-  // Add images and iframes
-  imgElements.forEach((img) => bubble.appendChild(img));
-  iframeElements.forEach((iframe) => bubble.appendChild(iframe));
+  // Add all image elements
+  imgElements.forEach((img) => {
+    bubble.appendChild(img);
+  });
+
+  // Add all iframe elements
+  iframeElements.forEach((iframe) => {
+    bubble.appendChild(iframe);
+  });
 
   messageDiv.appendChild(bubble);
   messagesDiv.appendChild(messageDiv);
